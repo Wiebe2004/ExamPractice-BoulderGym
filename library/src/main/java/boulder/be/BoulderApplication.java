@@ -1,7 +1,11 @@
 package boulder.be;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
 public class BoulderApplication {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        SpringApplication.run(BoulderApplication.class, args);
     }
 }

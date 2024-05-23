@@ -1,1 +1,7 @@
-boulder\be\Main.class
+boulder\be\model\User.class
+boulder\be\repository\DbInitializer.class
+boulder\be\service\UserService.class
+boulder\be\restcontroller\UserRestController.class
+boulder\be\repository\UserRepository.class
+boulder\be\BoulderApplication.class
+boulder\be\ServiceException.class
