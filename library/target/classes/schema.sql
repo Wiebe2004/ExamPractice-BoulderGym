@@ -14,9 +14,9 @@ create table users(
 create table SUBSCRIPTION(
     id bigint auto_increment primary key,
     start_date date not null,
-    end_date date not null,
+    end_date date,
     type varchar(255) not null,
-    is_active boolean not null,
+    is_active boolean,
     user_id bigint,
-    foreign key (user_id) references users(id)
+    foreign key (user_id) references users(id) on delete cascade
 );

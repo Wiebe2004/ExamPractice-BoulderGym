@@ -11,6 +11,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -43,7 +46,8 @@ public class User {
 
     private int age;
 
-    protected User() {}
+    protected User() {
+    }
 
     public User(String firstName, String name, LocalDate birthDate, String email, boolean isStudent) {
         setFirstName(firstName);
@@ -51,15 +55,15 @@ public class User {
         setBirthDate(birthDate);
         setEmail(email);
         setStudent(isStudent);
-        setAge(birthDate);
+        this.setAge();
         setSubscription(subscription);
     }
 
-    public void setSubscription(List<Subscription> subscription){
+    public void setSubscription(List<Subscription> subscription) {
         this.subscription = subscription;
     }
 
-    public List<Subscription> getSubscription(){
+    public List<Subscription> getSubscription() {
         return subscription;
     }
 
@@ -95,7 +99,14 @@ public class User {
         return this.birthDate;
     }
 
-    public void setAge(LocalDate birthDate) {
+    @PrePersist
+    @PreUpdate
+    public void setAge() {
+        this.age = Period.between(this.birthDate, LocalDate.now()).getYears();
+    }
+
+    @PostLoad
+    private void calculateAgeAfterLoad() {
         this.age = Period.between(this.birthDate, LocalDate.now()).getYears();
     }
 

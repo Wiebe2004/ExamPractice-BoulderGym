@@ -13,12 +13,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "SUBSCRIPTION")
-public class Subscription {
+@Table(name = "TENTIMESPASS")
+public class TenTimesPass {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -28,9 +27,6 @@ public class Subscription {
     @JsonBackReference
     private User user;
 
-    @NotBlank(message = "Type cannot be empty")
-    private String type;
-
     @NotNull(message = "Start date is required!")
     // @Future(message = "Start canot be in the future")
     private LocalDate startDate;
@@ -39,24 +35,15 @@ public class Subscription {
 
     private boolean isActive;
 
-    protected Subscription() {
+    private int entries;
+
+    protected TenTimesPass() {
     }
 
-    public Subscription(String type, LocalDate startDate) {
-        setType(type);
+    public TenTimesPass(LocalDate startDate) {
         setStartDate(startDate);
         this.startDate = startDate;
-
-    }
-
-    private void setType(String type) {
-        if (type.isEmpty()) {
-            throw new DomainException("Membership type is required");
-        }
-        if (!type.equals("1MONTH") && !type.equals("3MONTH") && !type.equals("6MONTH")) {
-            throw new DomainException("Invalid membership type");
-        }
-        this.type = type;
+        // this.entries = entries;
     }
 
     private void setStartDate(LocalDate startDate) {
@@ -65,23 +52,14 @@ public class Subscription {
 
     @PrePersist
     @PreUpdate
-    private void calculateEndDateAndIsActive() {
-        if (type.equals("1MONTH")) {
-            this.endDate = startDate.plusMonths(1);
-        } else if (type.equals("3MONTH")) {
-            this.endDate = startDate.plusMonths(3);
-        } else if (type.equals("6MONTH")) {
-            this.endDate = startDate.plusMonths(6);
-        }
+    private void calculateEndDateAndIsActiveAndEntries() {
+        this.endDate = startDate.plusYears(1);
         this.isActive = !endDate.isBefore(LocalDate.now());
+        this.entries = 10;
     }
 
     public boolean getIsActive() {
         return this.isActive;
-    }
-
-    public String getType() {
-        return this.type;
     }
 
     public LocalDate getStartDate() {
@@ -92,8 +70,11 @@ public class Subscription {
         return this.endDate;
     }
 
+    public int getEntries(){
+        return this.entries;
+    }
+
     public Object setUser(User user) {
         return this.user = user;
     }
-
 }

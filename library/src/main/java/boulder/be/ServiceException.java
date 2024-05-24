@@ -2,19 +2,31 @@ package boulder.be;
 
 public class ServiceException extends RuntimeException {
 
-    public String field;
-    
-    
+    private static final long serialVersionUID = 1L;
+
+    private final String errorCode;
+
     public ServiceException(String message) {
         super(message);
+        this.errorCode = "UNKNOWN";
     }
 
-    public ServiceException(String field, String message) {
+    public ServiceException(String message, String errorCode) {
         super(message);
-        this.field = field;
+        this.errorCode = errorCode;
     }
 
-    public String getField() {
-        return field;
+    public ServiceException(String message, Throwable cause) {
+        super(message, cause);
+        this.errorCode = "UNKNOWN";
+    }
+
+    public ServiceException(String message, String errorCode, Throwable cause) {
+        super(message, cause);
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
     }
 }
