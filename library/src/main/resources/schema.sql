@@ -11,11 +11,12 @@ create table users(
     is_student boolean not null
 );
 
-create table subscriptions(
+create table SUBSCRIPTION(
     id bigint auto_increment primary key,
-    type varchar(255),
-    startDate date,
-    endDate date,
+    start_date date not null,
+    end_date date not null,
+    type varchar(255) not null,
+    is_active boolean not null,
     user_id bigint,
     foreign key (user_id) references users(id)
 );

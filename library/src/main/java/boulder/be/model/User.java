@@ -3,8 +3,7 @@ package boulder.be.model;
 import java.time.LocalDate;
 import java.time.Period;
 
-import org.hibernate.mapping.List;
-
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
@@ -44,8 +43,7 @@ public class User {
 
     private int age;
 
-    protected User() {
-    }
+    protected User() {}
 
     public User(String firstName, String name, LocalDate birthDate, String email, boolean isStudent) {
         setFirstName(firstName);
@@ -54,6 +52,15 @@ public class User {
         setEmail(email);
         setStudent(isStudent);
         setAge(birthDate);
+        setSubscription(subscription);
+    }
+
+    public void setSubscription(List<Subscription> subscription){
+        this.subscription = subscription;
+    }
+
+    public List<Subscription> getSubscription(){
+        return subscription;
     }
 
     public void setName(String name) {
@@ -88,7 +95,7 @@ public class User {
         return this.birthDate;
     }
 
-    public void setAge(LocalDate birthDate){
+    public void setAge(LocalDate birthDate) {
         this.age = Period.between(this.birthDate, LocalDate.now()).getYears();
     }
 

@@ -11,5 +11,7 @@ import boulder.be.model.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByIsStudent(boolean isStudent);
+
+    User findByEmail(String email);
     
 }

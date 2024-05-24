@@ -11,12 +11,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "subscriptions")
+@Table(name = "SUBSCRIPTION")
 public class Subscription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,10 +30,12 @@ public class Subscription {
     private String type;
 
     @NotNull(message = "Start date is required!")
-    @Future(message = "Start canot be in the future")
+    // @Future(message = "Start canot be in the future")
     private LocalDate startDate;
 
     private LocalDate endDate;
+
+    private boolean isActive;
 
     protected Subscription() {
     }
@@ -43,6 +44,7 @@ public class Subscription {
         setType(type);
         setStartDate(startDate);
         setEndDate(startDate);
+        setIsActive(endDate);
 
     }
 
@@ -72,6 +74,18 @@ public class Subscription {
         }
     }
 
+    private void setIsActive(LocalDate endDate) {
+        if (endDate.isBefore(LocalDate.now())) {
+            this.isActive = false;
+        }else {
+            this.isActive = true;
+        }
+    }
+
+    public boolean getIsActive(){
+        return this.isActive;
+    }
+
     public String getType() {
         return this.type;
     }
@@ -82,6 +96,10 @@ public class Subscription {
 
     public LocalDate getEndDate() {
         return this.endDate;
+    }
+
+    public Object setUser(User user) {
+        return this.user = user;
     }
 
 }
