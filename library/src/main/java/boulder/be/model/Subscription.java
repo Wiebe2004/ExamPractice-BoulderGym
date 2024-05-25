@@ -37,7 +37,7 @@ public class Subscription {
 
     private LocalDate endDate;
 
-    private boolean isActive;
+    private String isActive;
 
     protected Subscription() {
     }
@@ -73,10 +73,17 @@ public class Subscription {
         } else if (type.equals("6MONTH")) {
             this.endDate = startDate.plusMonths(6);
         }
-        this.isActive = !endDate.isBefore(LocalDate.now());
+        this.endDate = startDate.plusYears(1);
+        if (endDate.isBefore(LocalDate.now())) {
+            this.isActive = "EXPIRED";
+        } else if (startDate.isAfter(LocalDate.now())) {
+            this.isActive = "NOT ACTIVE: will be active from: " + startDate;
+        } else {
+            this.isActive = "TRUE";
+        }
     }
 
-    public boolean getIsActive() {
+    public String getIsActive() {
         return this.isActive;
     }
 

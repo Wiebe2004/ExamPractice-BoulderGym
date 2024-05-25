@@ -2,6 +2,8 @@ package boulder.be.model;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Entity;
@@ -18,6 +20,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "TENTIMESPASS")
 public class TenTimesPass {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -33,9 +36,9 @@ public class TenTimesPass {
 
     private LocalDate endDate;
 
-    private boolean isActive;
+    private String isActive;
 
-    private int entries;
+    private int entries = 10;
 
     protected TenTimesPass() {
     }
@@ -54,11 +57,20 @@ public class TenTimesPass {
     @PreUpdate
     private void calculateEndDateAndIsActiveAndEntries() {
         this.endDate = startDate.plusYears(1);
-        this.isActive = !endDate.isBefore(LocalDate.now());
-        this.entries = 10;
+        if (endDate.isBefore(LocalDate.now())) {
+            this.isActive = "EXPIRED";
+        } else if (startDate.isAfter(LocalDate.now())) {
+            this.isActive = "NOT ACTIVE: will be active from: " + startDate;
+        } else if (entries == 0) {
+            this.isActive = "10 times pass is empty";
+        } else {
+            this.isActive = "TRUE";
+        }
+        // this.isActive = !endDate.isBefore(LocalDate.now());
+        // this.entries = entries;
     }
 
-    public boolean getIsActive() {
+    public String getIsActive() {
         return this.isActive;
     }
 
@@ -70,11 +82,19 @@ public class TenTimesPass {
         return this.endDate;
     }
 
-    public int getEntries(){
+    public int getEntries() {
         return this.entries;
     }
 
     public Object setUser(User user) {
         return this.user = user;
+    }
+
+    public void removeEnty() {
+        if (this.entries > 0) {
+            this.entries--;
+        } else {
+            throw new DomainException("No entries left to remove");
+        }
     }
 }

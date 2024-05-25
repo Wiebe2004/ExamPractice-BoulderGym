@@ -1,7 +1,13 @@
+boulder\be\model\Subscription.class
 boulder\be\model\User.class
-boulder\be\repository\DbInitializer.class
 boulder\be\service\UserService.class
-boulder\be\restcontroller\UserRestController.class
-boulder\be\repository\UserRepository.class
+boulder\be\repository\TenTimesPassRepository.class
 boulder\be\BoulderApplication.class
 boulder\be\ServiceException.class
+boulder\be\repository\SubscriptionRepository.class
+boulder\be\model\DomainException.class
+boulder\be\repository\DbInitializer.class
+boulder\be\restcontroller\UserRestController.class
+boulder\be\repository\UserRepository.class
+boulder\be\model\TenTimesPass.class
+boulder\be\util\RandomIdGenerator.class

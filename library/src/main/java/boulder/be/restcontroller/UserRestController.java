@@ -3,17 +3,21 @@ package boulder.be.restcontroller;
 import org.springframework.web.bind.annotation.RestController;
 
 import boulder.be.ServiceException;
+import boulder.be.model.DomainException;
 import boulder.be.model.Subscription;
+import boulder.be.model.TenTimesPass;
 import boulder.be.model.User;
 import boulder.be.service.UserService;
 import jakarta.validation.Valid;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/users")
 public class UserRestController {
     private UserService userService;
+
     @Autowired
     public UserRestController(UserService userService) {
         this.userService = userService;
@@ -58,6 +63,11 @@ public class UserRestController {
         }
     }
 
+    @GetMapping("/{email}/scan")
+    public User getMethodName(@PathVariable String email) {
+        return userService.scanUser(email);
+    }
+
     @PostMapping()
     public User addUser(@RequestBody User user) {
         return userService.addUser(user);
@@ -68,18 +78,32 @@ public class UserRestController {
         return userService.addSubscription(email, subscription);
     }
 
+    @PostMapping("/{email}/tentimes")
+    public User addTenTimes(@PathVariable String email, @Valid @RequestBody List<TenTimesPass> tenTimes) {
+        return userService.addTenTimesPass(email, tenTimes);
+    }
+
     @DeleteMapping("/{email}")
-    public Map<String, String> deleteUser(@PathVariable String email){
+    public Map<String, String> deleteUser(@PathVariable String email) {
         userService.deleteUser(email);
         Map<String, String> response = new HashMap<>();
         response.put("message", "User with email: " + email + " has been deleted.");
         return response;
     }
+
     @DeleteMapping("/{email}/subscription")
-    public Map<String, String> deleteSubscription(@PathVariable String email){
+    public Map<String, String> deleteSubscription(@PathVariable String email) {
         userService.deleteUserSubscription(email);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Subscription from user with email: " + email + " has been deleted.");
+        return response;
+    }
+
+    @DeleteMapping("/{email}/tentimespass")
+    public Map<String, String> deleteTentimesPass(@PathVariable String email) {
+        userService.deleteUserTenTimesPass(email);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Ten times pass from user with email: " + email + " has been deleted.");
         return response;
     }
 
@@ -97,5 +121,27 @@ public class UserRestController {
         Map<String, String> errors = new HashMap<>();
         errors.put("Service Exception", ex.getMessage());
         return errors;
+    }
+
+    @ExceptionHandler(DomainException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Map<String, Object>> handleDomainException(DomainException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        // body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Domain Error");
+        body.put("message", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        // body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        body.put("error", "Internal Server Error");
+        body.put("message", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

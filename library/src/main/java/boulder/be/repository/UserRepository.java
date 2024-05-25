@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import boulder.be.model.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, String> {
 
     List<User> findByIsStudent(boolean isStudent);
 

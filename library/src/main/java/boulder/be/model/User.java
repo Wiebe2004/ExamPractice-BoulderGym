@@ -2,13 +2,14 @@ package boulder.be.model;
 
 import java.time.LocalDate;
 import java.time.Period;
-
 import java.util.List;
+
+import org.hibernate.annotations.GenericGenerator;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
@@ -26,9 +27,18 @@ public class User {
     @JsonManagedReference
     private List<Subscription> subscription;
 
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    private List<TenTimesPass> tenTimesPass;
+
+    // @Id
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // private long id;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(generator = "id")
+    @GenericGenerator(name = "id", strategy = "boulder.be.util.RandomIdGenerator")
+    private String id;
 
     @NotBlank(message = "First name may not be empty")
     private String firstName;
@@ -57,14 +67,23 @@ public class User {
         setStudent(isStudent);
         this.setAge();
         setSubscription(subscription);
+        setTenTimesPass(tenTimesPass);
     }
 
     public void setSubscription(List<Subscription> subscription) {
         this.subscription = subscription;
     }
 
+    public void setTenTimesPass(List<TenTimesPass> tenTimesPass) {
+        this.tenTimesPass = tenTimesPass;
+    }
+
     public List<Subscription> getSubscription() {
         return subscription;
+    }
+
+    public List<TenTimesPass> getTenTimesPass() {
+        return tenTimesPass;
     }
 
     public void setName(String name) {
@@ -83,35 +102,36 @@ public class User {
         this.email = email;
     }
 
-    private void setStudent(boolean isStudent) {
-        this.isStudent = isStudent;
-    }
-
+    
     public String getFirstName() {
         return this.firstName;
     }
-
+    
     public String getName() {
         return this.name;
     }
-
+    
     public LocalDate getBirthDate() {
         return this.birthDate;
     }
-
+    
     @PrePersist
     @PreUpdate
     public void setAge() {
         this.age = Period.between(this.birthDate, LocalDate.now()).getYears();
+        setStudent(this.isStudent);  // Re-evaluate student status when age is set
     }
-
+    
     @PostLoad
     private void calculateAgeAfterLoad() {
         this.age = Period.between(this.birthDate, LocalDate.now()).getYears();
     }
-
+    
     public int getAge() {
         return this.age;
+    }
+    private void setStudent(boolean isStudent) {
+        this.isStudent = (this.age <= 24) && isStudent;
     }
 
     public String getEmail() {
@@ -122,7 +142,7 @@ public class User {
         return this.isStudent;
     }
 
-    public Long getID() {
+    public String getId() {
         return id;
     }
 }

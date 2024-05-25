@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 
 import boulder.be.ServiceException;
 import boulder.be.model.Subscription;
+import boulder.be.model.TenTimesPass;
 import boulder.be.model.User;
 import boulder.be.repository.SubscriptionRepository;
+import boulder.be.repository.TenTimesPassRepository;
 import boulder.be.repository.UserRepository;
 import jakarta.transaction.Transactional;
 
@@ -16,11 +18,14 @@ import jakarta.transaction.Transactional;
 public class UserService {
     private UserRepository userRepository;
     private SubscriptionRepository subscriptionRepository;
+    private TenTimesPassRepository tenTimesPassRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, SubscriptionRepository subscriptionRepository) {
+    public UserService(UserRepository userRepository, SubscriptionRepository subscriptionRepository,
+            TenTimesPassRepository tenTimesPassRepository) {
         this.userRepository = userRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.tenTimesPassRepository = tenTimesPassRepository;
     }
 
     public List<User> allUsers() {
@@ -52,6 +57,18 @@ public class UserService {
         user.setSubscription(subscriptions);
         subscriptions.forEach(subscription -> subscription.setUser(user));
         subscriptionRepository.saveAll(subscriptions);
+        return userRepository.save(user);
+    }
+
+    public User addTenTimesPass(String email, List<TenTimesPass> tenTimes) {
+        User user = findUserByEmail(email);
+        if (user == null) {
+            throw new ServiceException("User not found");
+        }
+
+        user.setTenTimesPass(tenTimes);
+        tenTimes.forEach(tenTimesPass -> tenTimesPass.setUser(user));
+        tenTimesPassRepository.saveAll(tenTimes);
         return userRepository.save(user);
     }
 
@@ -91,7 +108,8 @@ public class UserService {
     public void deleteUserSubscription(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new ServiceException("Cannot delete subscription from user with email: " + email + " because user was not found.");
+            throw new ServiceException(
+                    "Cannot delete subscription from user with email: " + email + " because user was not found.");
         }
 
         List<Subscription> subscriptions = subscriptionRepository.findByUser(user);
@@ -101,7 +119,37 @@ public class UserService {
         }
 
         subscriptionRepository.deleteByUser(user); // This line deletes subscriptions, not user
-    
+
+    }
+
+    public User scanUser(String email) {
+        User user = userRepository.findByEmail(email);
+
+        // List<Subscription> subscriptions = subscriptionRepository.findByUser(user);
+        List<TenTimesPass> tenTimes = tenTimesPassRepository.findByUser(user);
+        if (!tenTimes.isEmpty()) {
+            TenTimesPass pass = tenTimes.get(0);
+            pass.removeEnty();
+            tenTimesPassRepository.save(pass);
+        }
+        return user;
+    }
+    @Transactional
+    public void deleteUserTenTimesPass(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new ServiceException(
+                    "Cannot delete ten times pass from user with email: " + email + " because user was not found.");
+        }
+
+        List<TenTimesPass> pass = tenTimesPassRepository.findByUser(user);
+
+        if (pass.isEmpty()) {
+            throw new ServiceException("User has no subscription.");
+        }
+
+        tenTimesPassRepository.deleteByUser(user); // This line deletes subscriptions, not user
+
     }
 
 }
