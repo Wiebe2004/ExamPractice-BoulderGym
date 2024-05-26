@@ -1,6 +1,7 @@
 package boulder.be.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -61,8 +62,6 @@ public class TenTimesPass {
             this.isActive = "EXPIRED";
         } else if (startDate.isAfter(LocalDate.now())) {
             this.isActive = "NOT ACTIVE: will be active from: " + startDate;
-        } else if (entries == 0) {
-            this.isActive = "10 times pass is empty";
         } else {
             this.isActive = "TRUE";
         }
@@ -95,6 +94,7 @@ public class TenTimesPass {
             this.entries--;
         } else {
             throw new DomainException("No entries left to remove");
+            // List<TenTimesPass> tenTimes = tenTimesPassRepository.findByUser(user);
         }
     }
 }

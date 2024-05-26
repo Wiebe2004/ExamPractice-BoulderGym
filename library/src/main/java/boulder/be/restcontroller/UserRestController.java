@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 @RestController
 @RequestMapping("/users")
@@ -82,6 +84,15 @@ public class UserRestController {
     public User addTenTimes(@PathVariable String email, @Valid @RequestBody List<TenTimesPass> tenTimes) {
         return userService.addTenTimesPass(email, tenTimes);
     }
+
+    @PutMapping("/{email}")
+    public User updateUser(@PathVariable String email, @Valid @RequestBody User user) {
+        return userService.updateUser(email, user);
+    }
+    // @PutMapping("/{email}")
+    // public User updateSubscription(@PathVariable String email, @Valid @RequestBody List<Subscription> subscription) {
+    //     return userService.updateSubscription(email, subscription);
+    // }
 
     @DeleteMapping("/{email}")
     public Map<String, String> deleteUser(@PathVariable String email) {

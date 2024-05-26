@@ -73,7 +73,6 @@ public class Subscription {
         } else if (type.equals("6MONTH")) {
             this.endDate = startDate.plusMonths(6);
         }
-        this.endDate = startDate.plusYears(1);
         if (endDate.isBefore(LocalDate.now())) {
             this.isActive = "EXPIRED";
         } else if (startDate.isAfter(LocalDate.now())) {

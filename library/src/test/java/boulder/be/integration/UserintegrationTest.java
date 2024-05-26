@@ -1,0 +1,437 @@
+package boulder.be.integration;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+import boulder.be.repository.DbInitializer;
+import boulder.be.repository.SubscriptionRepository;
+import boulder.be.repository.TenTimesPassRepository;
+import boulder.be.repository.UserRepository;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureWebClient
+@Sql("classpath:schema.sql")
+public class UserintegrationTest {
+    @Autowired
+    private WebTestClient webTestClient;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private SubscriptionRepository subscriptionRepository;
+
+    @Autowired
+    private TenTimesPassRepository tenTimesPassRepository;
+
+    @Autowired
+    private DbInitializer dbInitializer;
+
+    @BeforeEach
+    public void setup() {
+        dbInitializer.initialize();
+    }
+
+    @Test
+    public void givenUsers_whenGetAllUsersWithLastNameFilter_thenFilteredUsersReturned() {
+        // Test retrieving all users filtered by name
+        webTestClient.get()
+                .uri("/users/search?last_name=Delvaux")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("{\n" + //
+                        "  \"subscription\": [\n" + //
+                        "    {\n" + //
+                        "      \"type\": \"1MONTH\",\n" + //
+                        "      \"startDate\": \"2024-05-23\",\n" + //
+                        "      \"endDate\": \"2024-06-23\",\n" + //
+                        "      \"isActive\": \"TRUE\"\n" + //
+                        "    }\n" + //
+                        "  ],\n" + //
+                        "  \"id\": 1,\n" + //
+                        "  \"firstName\": \"Wiebe\",\n" + //
+                        "  \"name\": \"Delvaux\",\n" + //
+                        "  \"email\": \"wiebe.delvaux@gmail.com\",\n" + //
+                        "  \"birthDate\": \"2004-11-24\",\n" + //
+                        "  \"isStudent\": true,\n" + //
+                        "  \"age\": 19\n" + //
+                        "}");
+    }
+
+    @Test
+    public void givenUsers_whenGetAllStudents_thenAllStudentsReturned() {
+        // Test retrieving all students
+        webTestClient.get()
+                .uri("/users/students")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("[\r\n" + //
+                        "  {\r\n" + //
+                        "    \"subscription\": [\r\n" + //
+                        "      {\r\n" + //
+                        "        \"type\": \"1MONTH\",\r\n" + //
+                        "        \"startDate\": \"2024-05-23\",\r\n" + //
+                        "        \"endDate\": \"2024-06-23\",\r\n" + //
+                        "        \"isActive\": \"TRUE\"\r\n" + //
+                        "      }\r\n" + //
+                        "    ],\r\n" + //
+                        "    \"id\": 1,\r\n" + //
+                        "    \"firstName\": \"Wiebe\",\r\n" + //
+                        "    \"name\": \"Delvaux\",\r\n" + //
+                        "    \"email\": \"wiebe.delvaux@gmail.com\",\r\n" + //
+                        "    \"birthDate\": \"2004-11-24\",\r\n" + //
+                        "    \"isStudent\": true,\r\n" + //
+                        "    \"age\": 19\r\n" + //
+                        "  },\r\n" + //
+                        "  {\r\n" + //
+                        "    \"subscription\": [\r\n" + //
+                        "      {\r\n" + //
+                        "        \"type\": \"3MONTH\",\r\n" + //
+                        "        \"startDate\": \"2024-02-05\",\r\n" + //
+                        "        \"endDate\": \"2024-05-05\",\r\n" + //
+                        "        \"isActive\": \"EXPIRED\"\r\n" + //
+                        "      }\r\n" + //
+                        "    ],\r\n" + //
+                        "    \"id\": 5,\r\n" + //
+                        "    \"firstName\": \"Bob\",\r\n" + //
+                        "    \"name\": \"Brown\",\r\n" + //
+                        "    \"email\": \"bob.brown@example.com\",\r\n" + //
+                        "    \"birthDate\": \"2000-07-30\",\r\n" + //
+                        "    \"isStudent\": true,\r\n" + //
+                        "    \"age\": 23\r\n" + //
+                        "  },\r\n" + //
+                        "  {\r\n" + //
+                        "    \"id\": 7,\r\n" + //
+                        "    \"firstName\": \"Eve\",\r\n" + //
+                        "    \"name\": \"Williams\",\r\n" + //
+                        "    \"email\": \"eve.williams@example.com\",\r\n" + //
+                        "    \"birthDate\": \"2001-04-12\",\r\n" + //
+                        "    \"isStudent\": true,\r\n" + //
+                        "    \"age\": 23\r\n" + //
+                        "  },\r\n" + //
+                        "  {\r\n" + //
+                        "    \"tenTimesPass\": [\r\n" + //
+                        "      {\r\n" + //
+                        "        \"startDate\": \"2024-03-13\",\r\n" + //
+                        "        \"endDate\": \"2025-03-13\",\r\n" + //
+                        "        \"isActive\": \"TRUE\",\r\n" + //
+                        "        \"entries\": 10\r\n" + //
+                        "      }\r\n" + //
+                        "    ],\r\n" + //
+                        "    \"id\": 10,\r\n" + //
+                        "    \"firstName\": \"Henry\",\r\n" + //
+                        "    \"name\": \"Martinez\",\r\n" + //
+                        "    \"email\": \"henry.martinez@example.com\",\r\n" + //
+                        "    \"birthDate\": \"2003-09-02\",\r\n" + //
+                        "    \"isStudent\": true,\r\n" + //
+                        "    \"age\": 20\r\n" + //
+                        "  },\r\n" + //
+                        "  {\r\n" + //
+                        "    \"tenTimesPass\": [\r\n" + //
+                        "      {\r\n" + //
+                        "        \"startDate\": \"2024-06-07\",\r\n" + //
+                        "        \"endDate\": \"2025-06-07\",\r\n" + //
+                        "        \"isActive\": \"NOT ACTIVE: will be active from: 2024-06-07\",\r\n" + //
+                        "        \"entries\": 10\r\n" + //
+                        "      }\r\n" + //
+                        "    ],\r\n" + //
+                        "    \"id\": 12,\r\n" + //
+                        "    \"firstName\": \"Jack\",\r\n" + //
+                        "    \"name\": \"Lewis\",\r\n" + //
+                        "    \"email\": \"jack.lewis@example.com\",\r\n" + //
+                        "    \"birthDate\": \"2002-01-29\",\r\n" + //
+                        "    \"isStudent\": true,\r\n" + //
+                        "    \"age\": 22\r\n" + //
+                        "  }\r\n" + //
+                        "]");
+    }
+
+    @Test
+    public void givenUsers_whenGetUserByEmail_thenUserReturned() {
+        // Test retrieving user by email
+        webTestClient.get()
+                .uri("/users/jack.lewis@example.com")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("{\r\n" + //
+                        "  \"tenTimesPass\": [\r\n" + //
+                        "    {\r\n" + //
+                        "      \"startDate\": \"2024-06-07\",\r\n" + //
+                        "      \"endDate\": \"2025-06-07\",\r\n" + //
+                        "      \"isActive\": \"NOT ACTIVE: will be active from: 2024-06-07\",\r\n" + //
+                        "      \"entries\": 10\r\n" + //
+                        "    }\r\n" + //
+                        "  ],\r\n" + //
+                        "  \"id\": 12,\r\n" + //
+                        "  \"firstName\": \"Jack\",\r\n" + //
+                        "  \"name\": \"Lewis\",\r\n" + //
+                        "  \"email\": \"jack.lewis@example.com\",\r\n" + //
+                        "  \"birthDate\": \"2002-01-29\",\r\n" + //
+                        "  \"isStudent\": true,\r\n" + //
+                        "  \"age\": 22\r\n" + //
+                        "}");
+    }
+
+    @Test
+    public void givenUsers_whenGetUsersByFirstName_thenFilteredUsersReturned() {
+        // Test retrieving users by first or last name
+        webTestClient.get()
+                .uri("/users/search?first_name=Wiebe")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("{\r\n" + //
+                        "  \"subscription\": [\r\n" + //
+                        "    {\r\n" + //
+                        "      \"type\": \"1MONTH\",\r\n" + //
+                        "      \"startDate\": \"2024-05-23\",\r\n" + //
+                        "      \"endDate\": \"2024-06-23\",\r\n" + //
+                        "      \"isActive\": \"TRUE\"\r\n" + //
+                        "    }\r\n" + //
+                        "  ],\r\n" + //
+                        "  \"id\": 1,\r\n" + //
+                        "  \"firstName\": \"Wiebe\",\r\n" + //
+                        "  \"name\": \"Delvaux\",\r\n" + //
+                        "  \"email\": \"wiebe.delvaux@gmail.com\",\r\n" + //
+                        "  \"birthDate\": \"2004-11-24\",\r\n" + //
+                        "  \"isStudent\": true,\r\n" + //
+                        "  \"age\": 19\r\n" + //
+                        "}");
+    }
+
+    @Test
+    public void givenUsers_whenScanUserByEmailWithSubscription_thenUserSubscriptionReturned() {
+        // Test scanning user by email
+        webTestClient.get()
+                .uri("/users/wiebe.delvaux@gmail.com/scan")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("{\r\n" + //
+                        "  \"subscription\": [\r\n" + //
+                        "    {\r\n" + //
+                        "      \"type\": \"1MONTH\",\r\n" + //
+                        "      \"startDate\": \"2024-05-23\",\r\n" + //
+                        "      \"endDate\": \"2024-06-23\",\r\n" + //
+                        "      \"isActive\": \"TRUE\"\r\n" + //
+                        "    }\r\n" + //
+                        "  ],\r\n" + //
+                        "  \"id\": 1,\r\n" + //
+                        "  \"firstName\": \"Wiebe\",\r\n" + //
+                        "  \"name\": \"Delvaux\",\r\n" + //
+                        "  \"email\": \"wiebe.delvaux@gmail.com\",\r\n" + //
+                        "  \"birthDate\": \"2004-11-24\",\r\n" + //
+                        "  \"isStudent\": true,\r\n" + //
+                        "  \"age\": 19\r\n" + //
+                        "}");
+    }
+
+    @Test
+    public void givenUsers_whenScanUserByEmailWithTenTimes_thenUserTenTimesReturned() {
+        // Test scanning user by email
+        webTestClient.get()
+                .uri("/users/jack.lewis@example.com/scan")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("{\r\n" + //
+                        "  \"tenTimesPass\": [\r\n" + //
+                        "    {\r\n" + //
+                        "      \"startDate\": \"2024-06-07\",\r\n" + //
+                        "      \"endDate\": \"2025-06-07\",\r\n" + //
+                        "      \"isActive\": \"NOT ACTIVE: will be active from: 2024-06-07\",\r\n" + //
+                        "      \"entries\": 9\r\n" + //
+                        "    }\r\n" + //
+                        "  ],\r\n" + //
+                        "  \"id\": 12,\r\n" + //
+                        "  \"firstName\": \"Jack\",\r\n" + //
+                        "  \"name\": \"Lewis\",\r\n" + //
+                        "  \"email\": \"jack.lewis@example.com\",\r\n" + //
+                        "  \"birthDate\": \"2002-01-29\",\r\n" + //
+                        "  \"isStudent\": true,\r\n" + //
+                        "  \"age\": 22\r\n" + //
+                        "}");
+    }
+
+    @Test
+    public void givenUser_whenAddUser_thenUserAdded() {
+        // Test adding a user
+        webTestClient.post()
+                .uri("/users")
+                .header("Content-Type", "application/json")
+                .bodyValue("{\n" + //
+                        "  \"firstName\": \"Jan\",\n" + //
+                        "  \"name\": \"Bollard\",\n" + //
+                        "  \"birthDate\": \"2002-05-20\",\n" + //
+                        "  \"email\": \"jan.bollard@gmail.com\",\n" + //
+                        "  \"isStudent\": true\n" + //
+                        "}")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("{\r\n" + //
+                        "  \"id\": 13,\r\n" + //
+                        "  \"firstName\": \"Jan\",\r\n" + //
+                        "  \"name\": \"Bollard\",\r\n" + //
+                        "  \"email\": \"jan.bollard@gmail.com\",\r\n" + //
+                        "  \"birthDate\": \"2002-05-20\",\r\n" + //
+                        "  \"isStudent\": true,\r\n" + //
+                        "  \"age\": 22\r\n" + //
+                        "}");
+
+        assertTrue(userRepository.existsByEmail("jan.bollard@gmail.com"));
+    }
+
+    }
+
+    @Test
+    public void givenUser_whenAddSubscription_thenSubscriptionAdded() {
+        // Test adding a subscription to user
+        webTestClient.post()
+                .uri("/users/john.wick@example.com/tentimes")
+                .header("Content-Type", "application/json")
+                .bodyValue("[\n" + //
+                        "  {\n" + //
+                        "    \"type\" : \"6MONTH\" ,\n" + //
+                        "    \"startDate\" : \"2024-05-24\"\n" + //
+                        "  }\n" + //
+                        "]")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("{\r\n" + //
+                        "  \"subscription\": [\r\n" + //
+                        "    {\r\n" + //
+                        "      \"type\": \"6MONTH\",\r\n" + //
+                        "      \"startDate\": \"2024-05-24\",\r\n" + //
+                        "      \"endDate\": \"2024-11-24\",\r\n" + //
+                        "      \"isActive\": \"TRUE\"\r\n" + //
+                        "    }\r\n" + //
+                        "  ],\r\n" + //
+                        "  \"id\": 15,\r\n" + //
+                        "  \"firstName\": \"Jack\",\r\n" + //
+                        "  \"name\": \"Sparrow\",\r\n" + //
+                        "  \"email\": \"jack.sparrow@example.com\",\r\n" + //
+                        "  \"birthDate\": \"1974-01-29\",\r\n" + //
+                        "  \"isStudent\": false,\r\n" + //
+                        "  \"age\": 50\r\n" + //
+                        "}");
+    }
+
+    @Test
+    public void givenUser_whenAddTenTimesPass_thenTenTimesPassAdded() {
+        // Test adding a ten times pass to user
+        webTestClient.post()
+                .uri("/users/john.wick@example.com/tentimes")
+                .header("Content-Type", "application/json")
+                .bodyValue("[\n" + //
+                        "  {\n" + //
+                        "    \"startDate\" : \"2024-05-26\"\n" + //
+                        "  }\n" + //
+                        "]")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("{\r\n" + //
+                        "  \"tenTimesPass\": [\r\n" + //
+                        "    {\r\n" + //
+                        "      \"startDate\": \"2024-05-24\",\r\n" + //
+                        "      \"endDate\": \"2025-05-24\",\r\n" + //
+                        "      \"isActive\": \"TRUE\",\r\n" + //
+                        "      \"entries\": 10\r\n" + //
+                        "    }\r\n" + //
+                        "  ],\r\n" + //
+                        "  \"id\": 13,\r\n" + //
+                        "  \"firstName\": \"John\",\r\n" + //
+                        "  \"name\": \"Wick\",\r\n" + //
+                        "  \"email\": \"john.wick@example.com\",\r\n" + //
+                        "  \"birthDate\": \"1965-04-02\",\r\n" + //
+                        "  \"isStudent\": false,\r\n" + //
+                        "  \"age\": 59\r\n" + //
+                        "}");
+    }
+
+    @Test
+    public void givenUser_whenUpdateUser_thenUserUpdated() {
+        // Test updating user information
+        webTestClient.put()
+                .uri("/users/john.doe@example.com")
+                .header("Content-Type", "application/json")
+                .bodyValue("{\n" + //
+                        "  \"firstName\": \"Jon\",\n" + //
+                        "  \"name\": \"Doodle\",\n" + //
+                        "  \"birthDate\": \"1990-05-16\",\n" + //
+                        "  \"email\": \"jon.doodle@example.com\",\n" + //
+                        "  \"isStudent\": false\n" + //
+                        "}")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("{\r\n" + //
+                        "  \"subscription\": [\r\n" + //
+                        "    {\r\n" + //
+                        "      \"type\": \"3MONTH\",\r\n" + //
+                        "      \"startDate\": \"2024-01-20\",\r\n" + //
+                        "      \"endDate\": \"2024-04-20\",\r\n" + //
+                        "      \"isActive\": \"EXPIRED\"\r\n" + //
+                        "    }\r\n" + //
+                        "  ],\r\n" + //
+                        "  \"id\": 2,\r\n" + //
+                        "  \"firstName\": \"Jon\",\r\n" + //
+                        "  \"name\": \"Doodle\",\r\n" + //
+                        "  \"email\": \"jon.doodle@example.com\",\r\n" + //
+                        "  \"birthDate\": \"1990-05-16\",\r\n" + //
+                        "  \"isStudent\": false,\r\n" + //
+                        "  \"age\": 34\r\n" + //
+                        "}");
+        assertTrue(userRepository.existsByEmail("jon.doodle@example.com"));
+    }
+
+    @Test
+    public void givenUsers_whenDeleteUser_thenUserDeleted() {
+        // Test deleting a user
+        webTestClient.delete()
+                .uri("/users/jane.smith@example.com")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("{\r\n" + //
+                        "  \"message\": \"User with email: jane.smith@example.com has been deleted.\"\r\n" + //
+                        "}");
+        assertFalse(userRepository.existsByEmail("jane.smith@example.com"));
+    }
+
+    @Test
+    public void givenUser_whenDeleteSubscription_thenSubscriptionDeleted() {
+        // Test deleting a subscription from user
+        webTestClient.get()
+                .uri("")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("");
+    }
+
+    @Test
+    public void givenUser_whenDeleteTenTimesPass_thenTenTimesPassDeleted() {
+        // Test deleting a ten times pass from user
+        webTestClient.get()
+                .uri("")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json("");
+    }
+
+}

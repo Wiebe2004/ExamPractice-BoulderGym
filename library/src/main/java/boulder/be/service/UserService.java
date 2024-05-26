@@ -13,6 +13,7 @@ import boulder.be.repository.SubscriptionRepository;
 import boulder.be.repository.TenTimesPassRepository;
 import boulder.be.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
 @Service
 public class UserService {
@@ -54,18 +55,41 @@ public class UserService {
             throw new ServiceException("User not found");
         }
 
+        List<TenTimesPass> pass = tenTimesPassRepository.findByUser(user);
+
+        if (!pass.isEmpty()) {
+            throw new ServiceException("User already has a 10 times pass, you cant have both.");
+        }
+
         user.setSubscription(subscriptions);
         subscriptions.forEach(subscription -> subscription.setUser(user));
         subscriptionRepository.saveAll(subscriptions);
         return userRepository.save(user);
     }
 
+    // public User updateSubscription(String email, @Valid List<Subscription>
+    // NewSubscriptionInfo) {
+    // User user = userRepository.findByEmail(email);
+
+    // if (user == null) {
+    // throw new ServiceException("User not found");
+    // }
+
+    // user.updateUser(NewSubscriptionInfo.getFirstName(),NewSubscriptionInfo.getName(),NewSubscriptionInfo.getBirthDate()
+    // ,newInformation.getEmail() ,newInformation.getIsStudent());
+    // return userRepository.save(user);
+    // }
+
     public User addTenTimesPass(String email, List<TenTimesPass> tenTimes) {
         User user = findUserByEmail(email);
         if (user == null) {
             throw new ServiceException("User not found");
         }
+        List<Subscription> subscriptions = subscriptionRepository.findByUser(user);
 
+        if (!subscriptions.isEmpty()) {
+            throw new ServiceException("User already has a subscription, you cant have both.");
+        }
         user.setTenTimesPass(tenTimes);
         tenTimes.forEach(tenTimesPass -> tenTimesPass.setUser(user));
         tenTimesPassRepository.saveAll(tenTimes);
@@ -73,7 +97,7 @@ public class UserService {
     }
 
     public User findUserByFirstName(String first_name) {
-        User user = userRepository.findUserByFirstName(first_name);
+        User user = userRepository.findUserByFirstNameIgnoreCase(first_name);
         if (user == null) {
             throw new ServiceException("User not found first name: " + first_name);
         }
@@ -81,7 +105,7 @@ public class UserService {
     }
 
     public User findUserByLastName(String last_name) {
-        User user = userRepository.findUserByName(last_name);
+        User user = userRepository.findUserByNameIgnoreCase(last_name);
         if (user == null) {
             throw new ServiceException("User not found first name: " + last_name);
         }
@@ -125,15 +149,24 @@ public class UserService {
     public User scanUser(String email) {
         User user = userRepository.findByEmail(email);
 
-        // List<Subscription> subscriptions = subscriptionRepository.findByUser(user);
+        List<Subscription> subscriptions = subscriptionRepository.findByUser(user);
         List<TenTimesPass> tenTimes = tenTimesPassRepository.findByUser(user);
-        if (!tenTimes.isEmpty()) {
+        if (tenTimes.isEmpty() && subscriptions.isEmpty()) {
+            throw new ServiceException("No subscription or 10 times pass was found with user: " + email);
+        } else if (!tenTimes.isEmpty()) {
             TenTimesPass pass = tenTimes.get(0);
             pass.removeEnty();
             tenTimesPassRepository.save(pass);
+            if (pass.getEntries() == 0) {
+                tenTimesPassRepository.delete(pass);
+                throw new ServiceException("10 times pass is empty");
+            }
+        } else if (!subscriptions.isEmpty()) {
+            return user;
         }
         return user;
     }
+
     @Transactional
     public void deleteUserTenTimesPass(String email) {
         User user = userRepository.findByEmail(email);
@@ -145,11 +178,23 @@ public class UserService {
         List<TenTimesPass> pass = tenTimesPassRepository.findByUser(user);
 
         if (pass.isEmpty()) {
-            throw new ServiceException("User has no subscription.");
+            throw new ServiceException("User has no ten times pass.");
         }
 
         tenTimesPassRepository.deleteByUser(user); // This line deletes subscriptions, not user
 
+    }
+
+    public User updateUser(String email, User newInformation) {
+        User user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            throw new ServiceException("User not found");
+        }
+
+        user.updateUser(newInformation.getFirstName(), newInformation.getName(), newInformation.getBirthDate(),
+                newInformation.getEmail(), newInformation.getIsStudent());
+        return userRepository.save(user);
     }
 
 }

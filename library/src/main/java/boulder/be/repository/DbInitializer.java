@@ -31,20 +31,23 @@ public class DbInitializer {
     @PostConstruct
     public void initialize() {
         User user1 = new User("Wiebe", "Delvaux", LocalDate.of(2004, 11, 24), "wiebe.delvaux@gmail.com", true);
-        User user2 = new User("John", "Doe", LocalDate.of(1990, 5, 15), "john.doe@example.com", true);
+        User user2 = new User("John", "Doe", LocalDate.of(1990, 5, 15), "john.doe@example.com", false);
         User user3 = new User("Jane", "Smith", LocalDate.of(1985, 8, 22), "jane.smith@example.com", false);
-        User user4 = new User("Alice", "Johnson", LocalDate.of(1995, 2, 10), "alice.johnson@example.com", true);
+        User user4 = new User("Alice", "Johnson", LocalDate.of(1995, 2, 10), "alice.johnson@example.com", false);
         User user5 = new User("Bob", "Brown", LocalDate.of(2000, 7, 30), "bob.brown@example.com", true);
         User user6 = new User("Charlie", "Davis", LocalDate.of(1998, 12, 5), "charlie.davis@example.com", true);
 
         User user7 = new User("Eve", "Williams", LocalDate.of(2001, 4, 12), "eve.williams@example.com", true);
-        User user8 = new User("Frank", "Thomas", LocalDate.of(1992, 3, 18), "frank.thomas@example.com", true);
-        User user9 = new User("Grace", "Harris", LocalDate.of(1987, 6, 25), "grace.harris@example.com", true);
-        User user10 = new User("Henry", "Martinez", LocalDate.of(1993, 9, 2), "henry.martinez@example.com", false);
-        User user11 = new User("Ivy", "Clark", LocalDate.of(1996, 11, 17), "ivy.clark@example.com", true);
-        User user12 = new User("Jack", "Lewis", LocalDate.of(1999, 1, 29), "jack.lewis@example.com", false);
+        User user8 = new User("Frank", "Thomas", LocalDate.of(1992, 3, 18), "frank.thomas@example.com", false);
+        User user9 = new User("Grace", "Harris", LocalDate.of(1987, 6, 25), "grace.harris@example.com", false);
+        User user10 = new User("Henry", "Martinez", LocalDate.of(2003, 9, 2), "henry.martinez@example.com", true);
+        User user11 = new User("Ivy", "Clark", LocalDate.of(1996, 11, 17), "ivy.clark@example.com", false);
+        User user12 = new User("Jack", "Lewis", LocalDate.of(2002, 1, 29), "jack.lewis@example.com", true);
+        User user13 = new User("Jack", "Sparrow", LocalDate.of(1974, 1, 29), "jack.sparrow@example.com", false);
+        User user14 = new User("John", "Wick", LocalDate.of(1965, 4, 2), "john.wick@example.com", false);
+        User user15 = new User("Erik", "Laayer", LocalDate.of(2002, 9, 9), "erik.laayer@example.com", false);
 
-        userRepository.saveAll(Arrays.asList(user1, user2, user3, user4, user5, user6,user7,user8,user9,user10,user11,user12));
+        userRepository.saveAll(Arrays.asList(user1, user2, user3, user4, user5, user6,user7,user8,user9,user10,user11,user12,user14,user15,user13));
 
         Subscription subscription1 = new Subscription("1MONTH", LocalDate.of(2024, 5, 23));
         Subscription subscription2 = new Subscription("3MONTH", LocalDate.of(2024, 1, 20));

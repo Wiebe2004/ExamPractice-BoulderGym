@@ -6,10 +6,12 @@ import java.util.List;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
@@ -25,20 +27,22 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     @JsonManagedReference
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<Subscription> subscription;
-
+    
     @OneToMany(mappedBy = "user")
     @JsonManagedReference
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<TenTimesPass> tenTimesPass;
 
-    // @Id
-    // @GeneratedValue(strategy = GenerationType.IDENTITY)
-    // private long id;
-
     @Id
-    @GeneratedValue(generator = "id")
-    @GenericGenerator(name = "id", strategy = "boulder.be.util.RandomIdGenerator")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    // @Id
+    // @GeneratedValue(generator = "id")
+    // @GenericGenerator(name = "id", strategy = "boulder.be.util.RandomIdGenerator")
+    // private String id;
 
     @NotBlank(message = "First name may not be empty")
     private String firstName;
@@ -142,7 +146,20 @@ public class User {
         return this.isStudent;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void updateUser(String firstName, String name, LocalDate birthDate, String newEmail, boolean isStudent){
+        setName(name);
+        setFirstName(firstName);
+        setBirthDate(birthDate);
+        this.setAge();
+        setEmail(newEmail);
+        setStudent(isStudent);
     }
 }
