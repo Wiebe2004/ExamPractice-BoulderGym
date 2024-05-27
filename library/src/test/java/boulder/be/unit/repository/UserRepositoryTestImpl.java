@@ -97,8 +97,22 @@ public class UserRepositoryTestImpl implements UserRepository {
 
     @Override
     public User findUserByFirstNameIgnoreCase(String first_name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findUserByFirstNameIgnoreCase'");
+        for (User user : users) {
+            if(user.getFirstName().toLowerCase().equals(first_name)){
+                return user;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public User findUserByNameIgnoreCase(String last_name) {
+        for (User user : users) {
+            if(user.getName().toLowerCase().equals(last_name)){
+                return user;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -167,13 +181,6 @@ public class UserRepositoryTestImpl implements UserRepository {
         throw new UnsupportedOperationException("Unimplemented method 'saveAndFlush'");
     }
 
-    @Override public
-
-    {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
-    }
-
     @Override
     public List<User> findAllById(Iterable<Long> ids) {
         // TODO Auto-generated method stub
@@ -183,13 +190,6 @@ public class UserRepositoryTestImpl implements UserRepository {
     public long count() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'count'");
-    }
-
-    @Override
-
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'delete'");
-
     }
 
     @Override
@@ -226,13 +226,6 @@ public class UserRepositoryTestImpl implements UserRepository {
     public Optional<User> findById(Long id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findById'");
-    }
-
-    @Override
-
-    {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
     }
 
     @Override
@@ -275,18 +268,6 @@ public class UserRepositoryTestImpl implements UserRepository {
     public <S extends User> Optional<S> findOne(Example<S> example) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findOne'");
-    }
-
-    @Override
-    public User findUserByNameIgnoreCase(String last_name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findUserByNameIgnoreCase'");
-    }
-
-    @Override
-     {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'existsByEmail'");
     }
 
 }

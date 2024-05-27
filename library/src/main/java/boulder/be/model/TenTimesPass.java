@@ -95,6 +95,10 @@ public class TenTimesPass {
         return this.entries;
     }
 
+    public User getUser(){
+        return this.user;
+    }
+
     public Object setUser(User user) {
         return this.user = user;
     }

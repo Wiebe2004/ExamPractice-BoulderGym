@@ -1,8 +1,11 @@
 package boulder.be.unit.repository;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.Iterator;
 
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -14,7 +17,64 @@ import boulder.be.model.TenTimesPass;
 import boulder.be.model.User;
 import boulder.be.repository.TenTimesPassRepository;
 
-public class TenTimesPassRepositoryTestImpl implements TenTimesPassRepository{
+public class TenTimesPassRepositoryTestImpl implements TenTimesPassRepository {
+
+    public List<TenTimesPass> tenTimesPasses;
+
+    public TenTimesPassRepositoryTestImpl() {
+        tenTimesPasses = new ArrayList<>();
+
+        tenTimesPasses.add(new TenTimesPass(LocalDate.of(2024, 05, 20)));
+        tenTimesPasses.add(new TenTimesPass(LocalDate.of(2023, 05, 10)));
+        tenTimesPasses.add(new TenTimesPass(LocalDate.of(2024, 01, 2)));
+        tenTimesPasses.add(new TenTimesPass(LocalDate.of(2024, 03, 13)));
+        tenTimesPasses.add(new TenTimesPass(LocalDate.of(2023, 11, 24)));
+        tenTimesPasses.add(new TenTimesPass(LocalDate.of(2024, 06, 07)));
+   
+    }
+
+    @Override
+    public <S extends TenTimesPass> S save(S entity) {
+        tenTimesPasses.add(entity);
+        return entity;
+    }
+
+    @Override
+    public <S extends TenTimesPass> List<S> saveAll(Iterable<S> entities) {
+        List<S> savedEntities = new ArrayList<>();
+        for (S entity : entities) {
+            tenTimesPasses.add(entity);
+            savedEntities.add(entity);
+        }
+        return savedEntities;
+    }
+
+    @Override
+    public List<TenTimesPass> findByUser(User user) {
+        List<TenTimesPass> result = new ArrayList<>();
+        for (TenTimesPass tenTimesPass : tenTimesPasses) {
+            if (tenTimesPass.getUser().equals(user)) {
+                result.add(tenTimesPass);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void deleteByUser(User user) {
+        Iterator<TenTimesPass> iterator = tenTimesPasses.iterator();
+        while (iterator.hasNext()) {
+            TenTimesPass tenTimesPass = iterator.next();
+            if (tenTimesPass.getUser().equals(user)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    @Override
+    public void delete(TenTimesPass entity) {
+        tenTimesPasses.remove(entity);
+    }
 
     @Override
     public void deleteAllByIdInBatch(Iterable<Long> ids) {
@@ -95,21 +155,9 @@ public class TenTimesPassRepositoryTestImpl implements TenTimesPassRepository{
     }
 
     @Override
-    public <S extends TenTimesPass> List<S> saveAll(Iterable<S> entities) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'saveAll'");
-    }
-
-    @Override
     public long count() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'count'");
-    }
-
-    @Override
-    public void delete(TenTimesPass entity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
 
     @Override
@@ -146,12 +194,6 @@ public class TenTimesPassRepositoryTestImpl implements TenTimesPassRepository{
     public Optional<TenTimesPass> findById(Long id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findById'");
-    }
-
-    @Override
-    public <S extends TenTimesPass> S save(S entity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
     }
 
     @Override
@@ -197,16 +239,4 @@ public class TenTimesPassRepositoryTestImpl implements TenTimesPassRepository{
         throw new UnsupportedOperationException("Unimplemented method 'findOne'");
     }
 
-    @Override
-    public List<TenTimesPass> findByUser(User user) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByUser'");
-    }
-
-    @Override
-    public void deleteByUser(User user) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteByUser'");
-    }
-    
 }

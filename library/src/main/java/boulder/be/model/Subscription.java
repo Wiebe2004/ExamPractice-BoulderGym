@@ -103,4 +103,8 @@ public class Subscription {
         return this.user = user;
     }
 
+    public User getUser(){
+        return this.user;
+    }
+
 }

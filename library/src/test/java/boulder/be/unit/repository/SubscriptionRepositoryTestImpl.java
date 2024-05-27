@@ -1,5 +1,8 @@
 package boulder.be.unit.repository;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -15,6 +18,62 @@ import boulder.be.model.User;
 import boulder.be.repository.SubscriptionRepository;
 
 public class SubscriptionRepositoryTestImpl implements SubscriptionRepository {
+
+    List<Subscription> subscriptions;
+
+    public SubscriptionRepositoryTestImpl() {
+        subscriptions = new ArrayList<>();
+
+        subscriptions.add(new Subscription("1MONTH", LocalDate.of(2024, 5, 23)));
+        subscriptions.add(new Subscription("3MONTH", LocalDate.of(2024, 1, 20)));
+        subscriptions.add(new Subscription("6MONTH", LocalDate.of(2024, 3, 4)));
+        subscriptions.add(new Subscription("6MONTH", LocalDate.of(2024, 5, 13)));
+        subscriptions.add(new Subscription("3MONTH", LocalDate.of(2024, 2, 5)));
+        subscriptions.add(new Subscription("6MONTH", LocalDate.of(2023, 2, 2)));
+    }
+
+    @Override
+    public <S extends Subscription> S save(S entity) {
+        subscriptions.add(entity);
+        return entity;
+    }
+
+    @Override
+    public <S extends Subscription> List<S> saveAll(Iterable<S> entities) {
+        List<S> savedEntities = new ArrayList<>();
+        for (S entity : entities) {
+            subscriptions.add(entity);
+            savedEntities.add(entity);
+        }
+        return savedEntities;
+    }
+
+    @Override
+    public List<Subscription> findByUser(User user) {
+        List<Subscription> result = new ArrayList<>();
+        for (Subscription subscription : subscriptions) {
+            if (subscription.getUser().equals(user)) {
+                result.add(subscription);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void deleteByUser(User user) {
+        Iterator<Subscription> iterator = subscriptions.iterator();
+        while (iterator.hasNext()) {
+            Subscription subscription = iterator.next();
+            if (subscription.getUser().equals(user)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    @Override
+    public void delete(Subscription entity) {
+        subscriptions.remove(entity);
+    }
 
     @Override
     public void deleteAllByIdInBatch(Iterable<Long> ids) {
@@ -95,21 +154,9 @@ public class SubscriptionRepositoryTestImpl implements SubscriptionRepository {
     }
 
     @Override
-    public <S extends Subscription> List<S> saveAll(Iterable<S> entities) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'saveAll'");
-    }
-
-    @Override
     public long count() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'count'");
-    }
-
-    @Override
-    public void delete(Subscription entity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
 
     @Override
@@ -146,12 +193,6 @@ public class SubscriptionRepositoryTestImpl implements SubscriptionRepository {
     public Optional<Subscription> findById(Long id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findById'");
-    }
-
-    @Override
-    public <S extends Subscription> S save(S entity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
     }
 
     @Override
@@ -197,16 +238,4 @@ public class SubscriptionRepositoryTestImpl implements SubscriptionRepository {
         throw new UnsupportedOperationException("Unimplemented method 'findOne'");
     }
 
-    @Override
-    public List<Subscription> findByUser(User user) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByUser'");
-    }
-
-    @Override
-    public void deleteByUser(User user) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteByUser'");
-    }
-    
 }
