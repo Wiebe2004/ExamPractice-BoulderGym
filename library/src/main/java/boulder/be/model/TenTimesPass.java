@@ -16,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -31,8 +32,9 @@ public class TenTimesPass {
     @JsonBackReference
     private User user;
 
-    @NotNull(message = "Start date is required!")
     // @Future(message = "Start canot be in the future")
+    @NotNull(message = "Start date is required!")
+    // @NotBlank(message = "Start date is required!")
     private LocalDate startDate;
 
     private LocalDate endDate;
@@ -46,7 +48,8 @@ public class TenTimesPass {
 
     public TenTimesPass(LocalDate startDate) {
         setStartDate(startDate);
-        this.startDate = startDate;
+        calculateEndDateAndIsActiveAndEntries();
+        setUser(user);
         // this.entries = entries;
     }
 
@@ -57,6 +60,13 @@ public class TenTimesPass {
     @PrePersist
     @PreUpdate
     private void calculateEndDateAndIsActiveAndEntries() {
+
+        if (startDate == null) {
+            // Handle the case where startDate is null
+            this.endDate = null;
+            return;
+        }
+
         this.endDate = startDate.plusYears(1);
         if (endDate.isBefore(LocalDate.now())) {
             this.isActive = "EXPIRED";
@@ -89,7 +99,7 @@ public class TenTimesPass {
         return this.user = user;
     }
 
-    public void removeEnty() {
+    public void removeEntry() {
         if (this.entries > 0) {
             this.entries--;
         } else {

@@ -3,6 +3,8 @@ package boulder.be.integration;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +13,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import boulder.be.model.Subscription;
+import boulder.be.model.TenTimesPass;
+import boulder.be.model.User;
 import boulder.be.repository.DbInitializer;
 import boulder.be.repository.SubscriptionRepository;
 import boulder.be.repository.TenTimesPassRepository;
-import boulder.be.repository.UserRepository;
+import boulder.be.unit.repository.UserRepositoryTestImpl;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebClient
@@ -24,7 +29,7 @@ public class UserintegrationTest {
     private WebTestClient webTestClient;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryTestImpl userRepository;
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
@@ -280,26 +285,24 @@ public class UserintegrationTest {
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
-                .json("{\r\n" + //
-                        "  \"id\": 13,\r\n" + //
-                        "  \"firstName\": \"Jan\",\r\n" + //
-                        "  \"name\": \"Bollard\",\r\n" + //
-                        "  \"email\": \"jan.bollard@gmail.com\",\r\n" + //
-                        "  \"birthDate\": \"2002-05-20\",\r\n" + //
-                        "  \"isStudent\": true,\r\n" + //
-                        "  \"age\": 22\r\n" + //
+                .json("{\n" + //
+                        "  \"id\": 16,\n" + //
+                        "  \"firstName\": \"Jan\",\n" + //
+                        "  \"name\": \"Bollard\",\n" + //
+                        "  \"email\": \"jan.bollard@gmail.com\",\n" + //
+                        "  \"birthDate\": \"2002-05-20\",\n" + //
+                        "  \"isStudent\": true,\n" + //
+                        "  \"age\": 22\n" + //
                         "}");
 
         assertTrue(userRepository.existsByEmail("jan.bollard@gmail.com"));
-    }
-
     }
 
     @Test
     public void givenUser_whenAddSubscription_thenSubscriptionAdded() {
         // Test adding a subscription to user
         webTestClient.post()
-                .uri("/users/john.wick@example.com/tentimes")
+                .uri("/users/jack.sparrow@example.com/subscription")
                 .header("Content-Type", "application/json")
                 .bodyValue("[\n" + //
                         "  {\n" + //
@@ -335,31 +338,35 @@ public class UserintegrationTest {
         webTestClient.post()
                 .uri("/users/john.wick@example.com/tentimes")
                 .header("Content-Type", "application/json")
-                .bodyValue("[\n" + //
-                        "  {\n" + //
-                        "    \"startDate\" : \"2024-05-26\"\n" + //
-                        "  }\n" + //
-                        "]")
+                .bodyValue("""
+                        [
+                            {
+                              "startDate" : "2024-05-24"
+                            }
+                          ]
+                            """)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
-                .json("{\r\n" + //
-                        "  \"tenTimesPass\": [\r\n" + //
-                        "    {\r\n" + //
-                        "      \"startDate\": \"2024-05-24\",\r\n" + //
-                        "      \"endDate\": \"2025-05-24\",\r\n" + //
-                        "      \"isActive\": \"TRUE\",\r\n" + //
-                        "      \"entries\": 10\r\n" + //
-                        "    }\r\n" + //
-                        "  ],\r\n" + //
-                        "  \"id\": 13,\r\n" + //
-                        "  \"firstName\": \"John\",\r\n" + //
-                        "  \"name\": \"Wick\",\r\n" + //
-                        "  \"email\": \"john.wick@example.com\",\r\n" + //
-                        "  \"birthDate\": \"1965-04-02\",\r\n" + //
-                        "  \"isStudent\": false,\r\n" + //
-                        "  \"age\": 59\r\n" + //
-                        "}");
+                .json("""
+                        {
+                            "tenTimesPass": [
+                              {
+                                "startDate": "2024-05-24",
+                                "endDate": "2025-05-24",
+                                "isActive": "TRUE",
+                                "entries": 10
+                              }
+                            ],
+                            "id": 13,
+                            "firstName": "John",
+                            "name": "Wick",
+                            "email": "john.wick@example.com",
+                            "birthDate": "1965-04-02",
+                            "isStudent": false,
+                            "age": 59
+                          }
+                            """);
     }
 
     @Test
@@ -415,23 +422,37 @@ public class UserintegrationTest {
     @Test
     public void givenUser_whenDeleteSubscription_thenSubscriptionDeleted() {
         // Test deleting a subscription from user
-        webTestClient.get()
-                .uri("")
+        User user = userRepository.findByEmail("charlie.davis@example.com");
+        List<Subscription> subscriptions = subscriptionRepository.findByUser(user);
+        webTestClient.delete()
+                .uri("/users/charlie.davis@example.com/subscription")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
-                .json("");
+                .json("{\r\n" + //
+                        "  \"message\": \"Subscription from user with email: charlie.davis@example.com has been deleted.\"\r\n"
+                        + //
+                        "}");
+        subscriptions = subscriptionRepository.findByUser(user);
+        assertTrue(subscriptions.isEmpty());
     }
 
     @Test
     public void givenUser_whenDeleteTenTimesPass_thenTenTimesPassDeleted() {
         // Test deleting a ten times pass from user
-        webTestClient.get()
-                .uri("")
+        User user = userRepository.findByEmail("ivy.clark@example.com");
+        List<TenTimesPass> pass = tenTimesPassRepository.findByUser(user);
+        webTestClient.delete()
+                .uri("/users/ivy.clark@example.com/tentimespass")
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
-                .json("");
+                .json("{\r\n" + //
+                        "  \"message\": \"Ten times pass from user with email: ivy.clark@example.com has been deleted.\"\r\n"
+                        + //
+                        "}");
+        pass = tenTimesPassRepository.findByUser(user);
+        assertTrue(pass.isEmpty());
     }
 
 }

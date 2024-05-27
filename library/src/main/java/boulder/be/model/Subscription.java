@@ -45,7 +45,8 @@ public class Subscription {
     public Subscription(String type, LocalDate startDate) {
         setType(type);
         setStartDate(startDate);
-        this.startDate = startDate;
+        calculateEndDateAndIsActive();
+        // this.startDate = startDate;
 
     }
 

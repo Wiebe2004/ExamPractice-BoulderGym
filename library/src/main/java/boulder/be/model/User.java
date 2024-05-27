@@ -18,6 +18,7 @@ import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -29,7 +30,7 @@ public class User {
     @JsonManagedReference
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<Subscription> subscription;
-    
+
     @OneToMany(mappedBy = "user")
     @JsonManagedReference
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -41,7 +42,8 @@ public class User {
 
     // @Id
     // @GeneratedValue(generator = "id")
-    // @GenericGenerator(name = "id", strategy = "boulder.be.util.RandomIdGenerator")
+    // @GenericGenerator(name = "id", strategy =
+    // "boulder.be.util.RandomIdGenerator")
     // private String id;
 
     @NotBlank(message = "First name may not be empty")
@@ -51,13 +53,16 @@ public class User {
     private String name;
 
     @NotBlank(message = "Email may not be empty")
+    @Email(message = "Email must be in a correct format")
     private String email;
 
     @NotNull(message = "BirthDate cannot be empty")
     private LocalDate birthDate;
 
+    @NotNull(message = "Student cannot be null")
     private boolean isStudent;
 
+    // @NotNull(message = "Age cannot be null, birthdate is required.")
     private int age;
 
     protected User() {
@@ -106,34 +111,36 @@ public class User {
         this.email = email;
     }
 
-    
     public String getFirstName() {
         return this.firstName;
     }
-    
+
     public String getName() {
         return this.name;
     }
-    
+
     public LocalDate getBirthDate() {
         return this.birthDate;
     }
-    
+
     @PrePersist
     @PreUpdate
     public void setAge() {
-        this.age = Period.between(this.birthDate, LocalDate.now()).getYears();
-        setStudent(this.isStudent);  // Re-evaluate student status when age is set
+        if (this.birthDate != null) {
+            this.age = Period.between(this.birthDate, LocalDate.now()).getYears();
+        }
+        setStudent(this.isStudent); // Re-evaluate student status when age is set
     }
-    
+
     @PostLoad
     private void calculateAgeAfterLoad() {
         this.age = Period.between(this.birthDate, LocalDate.now()).getYears();
     }
-    
+
     public int getAge() {
         return this.age;
     }
+
     private void setStudent(boolean isStudent) {
         this.isStudent = (this.age <= 24) && isStudent;
     }
@@ -154,7 +161,7 @@ public class User {
         this.id = id;
     }
 
-    public void updateUser(String firstName, String name, LocalDate birthDate, String newEmail, boolean isStudent){
+    public void updateUser(String firstName, String name, LocalDate birthDate, String newEmail, boolean isStudent) {
         setName(name);
         setFirstName(firstName);
         setBirthDate(birthDate);

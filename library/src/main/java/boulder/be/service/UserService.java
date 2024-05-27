@@ -155,7 +155,7 @@ public class UserService {
             throw new ServiceException("No subscription or 10 times pass was found with user: " + email);
         } else if (!tenTimes.isEmpty()) {
             TenTimesPass pass = tenTimes.get(0);
-            pass.removeEnty();
+            pass.removeEntry();
             tenTimesPassRepository.save(pass);
             if (pass.getEntries() == 0) {
                 tenTimesPassRepository.delete(pass);

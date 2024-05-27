@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-BoulderApplication<library>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "boulder.be.BoulderApplication",
+            "projectName": "library",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
