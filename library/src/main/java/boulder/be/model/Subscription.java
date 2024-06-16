@@ -25,7 +25,7 @@ public class Subscription {
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")
-    @JsonBackReference
+    @JsonBackReference //Moet stijn bij hetgene wat bij de persoon getoond word. In dit geval word bij user getoond welke subscription ze hebben.
     private User user;
 
     @NotBlank(message = "Type cannot be empty")

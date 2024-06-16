@@ -16,7 +16,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -29,7 +28,7 @@ public class TenTimesPass {
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")
-    @JsonBackReference
+    @JsonBackReference //Moet stijn bij hetgene wat bij de persoon getoond word. In dit geval word bij user getoond welke 10bk ze hebben.
     private User user;
 
     // @Future(message = "Start canot be in the future")
